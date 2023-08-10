@@ -1,27 +1,27 @@
-# ChatGPT-Blockchain
+# ChatGPT 100% descentralizado
 ChatGPT en Blockchain es la vanguardia de la libertad de información, creando una plataforma de inteligencia artificial completamente descentralizada, transparente e inmune a la censura.
 
-Zero knowledge machine learning is too slow for this. If it takes 1 to 10 seconds for a chat AI to respond, with zero knowledge it would take 10 minutes to 2 hours to respond!
+El Machine-learning con Zero-Knowledge es demasiado lento para esto. Si un chat de inteligencia artificial tarda entre 1 y 10 segundos en responder, con Zero-Knowledge tardaría entre 10 minutos y 2 horas en responder!!
 
-Instead, we use a completely different approach, using the blockchain: We have multiple nodes run the SAME deterministic AI model and we use a smart contract to check that the output of all nodes is the same content.
+En su lugar, utilizamos un enfoque completamente diferente, la Blockchain: Tenemos múltiples nodos que ejecutan el MISMO modelo de IA determinístico y utilizamos un Smart-Contract para verificar que la salida de todos los nodos sea la misma.
 
-Then, the smart contract uses a consensus mechanism to find the most popular result.
+Luego, el Smart-Contract utiliza un mecanismo de consenso para encontrar el resultado más popular.
 
-This way, nodes that give an incorrect output are punished, and those with a correct output are rewarded for their honest work.
+De esta manera, los nodos que dan una salida incorrecta son castigados, y aquellos con una salida correcta son recompensados por su trabajo honesto.
 
-This allows for a fully decentralized, AI chat running on the blockchain in REAL TIME, which cannot be censored or shut down.
+Esto permite correr chat de IA completamente descentralizado, que funciona en la Blockchain EN TIEMPO REAL, y que no puede ser censurado ni desactivado.
 
-## How it's Made
-We first use huggingface to create a large-language model (like GPT2 or Alpaca) which we then upload to IPFS.
+## Cómo funciona
+Usamos huggingface para crear un modelo de lenguaje grande (como GPT2 o Alpaca) que luego subimos a IPFS.
 
-The web app always points to this ipfs url to make use of this model. When a user writes a prompt, it is first uploaded to ipfs as well, and the url is sent to a smart contract, along with the model url.
+La webapp siempre apunta a esta URL de ipfs para hacer uso de este modelo. Cuando un usuario escribe un mensaje, primero se sube a ipfs también, y la URL se envía a un contrato inteligente, junto con la URL del modelo.
 
-Multiple nodes are listening to the smart contract TaskAdded event, and download both the model and prompt from ipfs. Once downloaded, the run the inference (predicting the output) in a deterministic way.
+Múltiples nodos están escuchando el evento TaskAdded del contrato inteligente, y descargan tanto el modelo como el mensaje de ipfs. Una vez descargados, ejecutan la inferencia (prediciendo la salida) de manera determinística.
 
-They then upload each of their output urls to the smart contract, which will determine which url is the most popular.
+Luego se suben cada una de las URLs de salida al Smart-Contract, que determinará cuál es la URL/resultado más popular.
 
-URLs in ipfs are created based on a hash of their content, and thus for nodes to all output the same url, they need to have created the same content.
+Las URLs en ipfs se crean en base a un hash de su contenido, y por lo tanto, para que todos los nodos produzcan la misma URL, necesitan haber creado el mismo contenido.
 
-Finally, the smart contract uses a simple consensus mechanism to reward nodes that uploaded the right output url, and punish those with an incorrect url.
+Finalmente, el contrato inteligente utiliza un simple mecanismo de consenso para recompensar a los nodos que subieron la URL de salida correcta y castigar a aquellos con una URL incorrecta.
 
-The web app then downloads the output file from ipfs and shows the response to the user.
+La aplicación web luego descarga el archivo de salida de ipfs y muestra la respuesta al usuario.
