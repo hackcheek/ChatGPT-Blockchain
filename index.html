@@ -1,0 +1,117 @@
+<body>
+	<div id="app" v-cloak>
+		<img class=mockup src=assets/mockup_gpt.png />
+		<div class=top-bar>
+			<div class=left-top-bar>
+				<div class=model-name>Uncensored GPT-5 (Blockchain)</div>
+			</div>
+			<div class=center-top-bar>
+				<a :href=modelUrl target=_blank class=model-ipfs>
+					<span class=model-tag>MODEL:</span> <span class=model-url>{{abbreviateIPFSURL(modelUrl, 4)}}</span>
+				</a>
+			</div>
+			<div class=right-top-bar>
+				<div class=networks>
+					<div class=network @click=dropdownNetwork>
+						{{network}}
+					</div>
+					<div class=networkDropdownContainer v-if=networks>
+						<transition name="fade" tag=networkDropdown>
+							<div class=networkDropdown v-show=networkDropdown>
+								<div class=network v-for="network in whitelistedNetworks" :key=network @click="selectNetwork(network)">
+									{{network}}
+								</div>
+							</div>
+						</transition>
+					</div>
+				</div>
+				<div class=wallets>
+					<div class=wallet-button @click=dropdownWallet>
+						<div class=wallet-text>{{abbreviateAddress(walletAddress, 4) || "Connect Wallet"}}</div>
+						<img src=assets/nouns0.png />
+					</div>
+					<div class=walletDropdownContainer>
+						<transition name="fade" tag=walletDropdown>
+							<div class=walletDropdown v-show=walletDropdown>
+								<div class=wallet-button v-for="(account, index) in walletAccounts" :key=account @click="selectWallet(account)">
+									<div class=wallet-text>{{abbreviateAddress(account, 4)}}</div>
+									<img :src="'assets/nouns'+index+'.png'" />
+								</div>
+							</div>
+						</transition>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class=container>
+			<div class=messages>
+				<transition-group name="message" tag="messages">
+					<div class=message v-for="(message, index) in messages" :key="index">
+						<div class=prompt  v-if="message.role == 'user'">
+							<div class=elements>
+								<div class=prompt-content>
+									<img src=assets/nouns0.png />
+									<div class=prompt-text>{{message.text}}</div>
+								</div>
+								<img class=validated_box_mockup src=assets/validated_box.png />
+							</div>
+						</div>
+						<div class=stats-container v-if="message.role == 'user'">
+							<div class=stats :class="{closed: !message.open}">
+								<img class=arrow src="assets/arrow.png" @click=toggleMessageInfo(message) />
+								<div class="validated" v-if=!message.error>
+									<span class=validated-text>VALIDATED</span> <span class=validated-numbers>{{message.resultsCount || 0}} / {{message.minResults || 0}} </span>
+								</div>
+								<div class=prompt-group>
+									<a :href=explorerUrl(message?.tx) target="_blank" class="transaction" v-if=!message.error>
+										<span class=transaction-text>PROMPT TX:</span> <span class=transaction-hash>{{abbreviateAddress(message.tx, 4) || "pending..."}}</span>
+									</a>
+									<a :href=message.url target="_blank" class="ipfs" v-if=!message.error>
+										<span class=ipfs-text>PROMPT URL: </span><span class=ipfs-url>{{abbreviateIPFSURL(message.url, 4) || "pending..."}}</span>
+									</a>
+								</div>
+								<div class=time v-if=!message.error>
+									<span class=time-text>TIME LEFT:</span> <span class="time-numbers">{{message.minTime || 0}}s &lt; {{message.time || 0}}s &lt; {{message.maxTime || 0}}s</span>
+								</div>
+								<div class=result-group>
+									<a :href=explorerUrl(nextResponse(message)?.tx) target="_blank" class="transaction" v-if=!message.error>
+										<span class=transaction-text>RESULT TX:</span> <span class=transaction-hash>{{abbreviateAddress(nextResponse(message)?.tx, 4) || "pending..."}}</span>
+									</a>
+									<a :href=nextResponse(message)?.url target="_blank" class="ipfs" v-if=!message.error>
+										<span class=ipfs-text>RESULT URL:</span> <span class=ipfs-url>{{abbreviateIPFSURL(nextResponse(message)?.url, 4) || "pending..."}}</span>
+									</a>
+								</div>
+								<div class="transaction error" v-if=message.error>
+									<div class=transaction-text>ERROR</div>
+								</div>
+								<div class=error-details v-if=message.error>{{message.error}}</div>
+							</div>
+						</div>
+						<div class=response v-if="message.role == 'bot'">
+							<div class=elements>
+								<div class=response-content>
+									<img src=assets/nouns3.png />
+									<div class=response-text><type-effect :text=message.text ></type-effect></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</transition-group>
+			</div>
+			<div class=bottom-bar v-show=!waitingForResponse>
+				<input class=send-message placeholder="Send a message" v-model="newMessage" @keyup.enter="handleEnter"></input>
+			</div>
+		</div>
+	</div>
+</body>
+<link rel="stylesheet" href="style.css" />
+
+
+<script src="libs/vue.js"></script>
+<script src="libs/ethers.js"></script>
+<script src="libs/ipfs.js"></script>
+<script src="libs/ipfs-http-client.js"></script>
+<script src="libs/web3.js"></script>
+<script src="test.js"></script>
+
+<script src="script.js"></script>

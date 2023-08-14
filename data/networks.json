@@ -1,0 +1,102 @@
+{
+    "testnet/sepolia": {
+        "rpc_urls": [
+            "https://sepolia.infura.io/v3",
+            "https://rpc.sepolia.org",
+            "https://rpc2.sepolia.org"
+        ],
+        "explorer": "https://sepolia.etherscan.io",
+        "token_address": "0x5997fB5Cc05Bd53A5fe807eb8BA592d664099d5a",
+        "task_runner_address": "0x4036E6F21D735128a784Fa3897e8260FAA146ED3"
+    },
+    "devnet/anvil": {
+        "rpc_urls": [
+            "http://127.0.0.1:8545"
+        ],
+        "explorer": null,
+        "token_address": "0x4Dd5F358D39A9DFfaC8F1905FcC238A04BC1f332",
+        "task_runner_address": "0xDAE95F004b4B308921c8fdead101555eAB83916B"
+    },
+    "testnet/scroll": {
+        "rpc_urls": [
+            "https://alpha-rpc.scroll.io/l2"
+        ],
+        "explorer": "https://blockscout.scroll.io",
+        "token_address": "0xc365bc6d5ADd80998FFa68d0Da4925A54C43D0F6",
+        "task_runner_address": "0x9bDfF39Fa9Bd210629f3FEd4A4470A753268Bb6F"
+    },
+    "testnet/arbitrum": {
+        "rpc_urls": [
+            "https://goerli-rollup.arbitrum.io/rpc"
+        ],
+        "explorer": "https://goerli.arbiscan.io",
+        "token_address": "0xc365bc6d5ADd80998FFa68d0Da4925A54C43D0F6",
+        "task_runner_address": "0x2aCe1d7797987a23CF35b0695154b5FEBeA42F85"
+    },
+    "testnet/polygon/zkevm": {
+        "rpc_urls": [
+            "https://rpc.public.zkevm-test.net"
+        ],
+        "explorer": "https://testnet-zkevm.polygonscan.com",
+        "token_address": "0xc365bc6d5ADd80998FFa68d0Da4925A54C43D0F6",
+        "task_runner_address": "0x49717A5D8036be3aaf251463efeCf30bff38A209"
+    },
+    "testnet/aurora": {
+        "rpc_urls": [
+            "https://testnet.aurora.dev"
+        ],
+        "explorer": "https://testnet.aurorascan.dev",
+        "token_address": "0xc365bc6d5ADd80998FFa68d0Da4925A54C43D0F6",
+        "task_runner_address": "0x66714d35a0d8C585665AA73279b1828eC049eB26"
+    },
+    "testnet/neonevm": {
+        "rpc_urls": [
+            "https://devnet.neonevm.org"
+        ],
+        "explorer": "https://devnet.neonscan.org/",
+        "token_address": "0xc365bc6d5ADd80998FFa68d0Da4925A54C43D0F6",
+        "task_runner_address": "0x749091C807660e3b89A119878204135C2803E81b"
+    },
+    "testnet/mantle": {
+        "rpc_urls": [
+            "https://rpc.testnet.mantle.xyz"
+        ],
+        "explorer": "https://explorer.testnet.mantle.xyz/",
+        "token_address": "0x0BcFF346d24668DD16d760F0C9Cef45aD8580FD5",
+        "task_runner_address": "0xd17746a67f05D7e1E6e199d6f6e76597061E980E"
+    },
+    "mainnet/aurora": {
+        "rpc_urls": [
+            "https://mainnet.aurora.dev"
+        ],
+        "explorer": "https://aurorascan.dev/",
+        "token_address": "0x4Dd5F358D39A9DFfaC8F1905FcC238A04BC1f332",
+        "task_runner_address": "0xDAE95F004b4B308921c8fdead101555eAB83916B"
+    },
+    "mainnet/gnosis": {
+        "rpc_urls": [
+            "https://shy-solitary-violet.xdai.discover.quiknode.pro/996c2ee53bdab6c1a18f039f7ac4dd6615e1e8b1/",
+            "https://rpc.gnosischain.com"
+        ],
+        "explorer": "https://gnosisscan.io",
+        "token_address": "0x4Dd5F358D39A9DFfaC8F1905FcC238A04BC1f332",
+        "task_runner_address": "0xdDe55Bbf8bB6b13C11De0AfDb8214f245dB48d4a"
+    },
+    "mainnet/neonevm": {
+        "rpc_urls": [
+            "https://neon-proxy-mainnet.solana.p2p.org"
+        ],
+        "explorer": "https://neonscan.org",
+        "token_address": "0xDAE95F004b4B308921c8fdead101555eAB83916B",
+        "task_runner_address": "0x80a4C63B8201f1b69C03AbCf1525353a7F1186db"
+    },
+    "testnet/linea": {
+        "rpc_urls": [
+            "https://linea-goerli.infura.io/v3/f4c806af885a4ff68a70b65e624f046b",
+            "https://rpc.goerli.linea.build"
+        ],
+        "explorer": "https://goerli.lineascan.build/",
+        "token_address": "0x70bb5CB76257579A8895a012Da0afA992eAf8c16",
+        "task_runner_address": "0xc74f072eE7736EfFD418A1C98cF1bc534477F86A"
+    }
+}
