@@ -1,3 +1,4 @@
+let globalSigner = undefined
 const TypeEffect = {
     props: {
         text: String,
@@ -273,6 +274,9 @@ const app = Vue.createApp({
             const provider = this.getProvider();
             const signer = await provider.getSigner();
             const address = await signer.getAddress();
+
+            console.log("signer", signer)
+            window.signer = signer
             console.log("Signer's address:", address);
 
             // Vue.markRaw dettachs Contract class from Vue Proxy
@@ -282,7 +286,11 @@ const app = Vue.createApp({
             this.taskRunner = Vue.markRaw(new ethers.Contract(
                 this.taskRunnerAddress, this.taskRunnerABI, signer
             ));
-            console.log("taskRunner", this.taskRunner)
+            await getContracts(
+                this.tokenABI, this.tokenAddress,
+                this.taskRunnerABI, this.taskRunnerAddress, signer
+            );
+            console.log("taskRunner", window.taskRunner)
         },
         getProvider(){
             // TODO: switch network when it's selected
@@ -299,7 +307,7 @@ const app = Vue.createApp({
                 const balance = await provider.getBalance(address);
                 return await ethers.utils.formatEther(balance)
             } catch (error) {
-                console.log('Error retrieving balance: ' + error)
+                console.error('Error retrieving balance: ' + error)
             }
         },
         async uploadToIPFS(text) {
@@ -372,7 +380,7 @@ const app = Vue.createApp({
         async runTask(modelUrl, datasetUrl) {
             try{
                 console.log("Token contract address:", this.token.address);
-                console.log("Task runner contract address:", this.taskRunner.address);
+                console.log("Task runner contract address:", window.taskRunner.address);
 
                 const amountToApprove = ethers.utils.parseUnits('100.0', 18);  // Allow the spender to transfer 10 tokens
                 const tx = await this.token.approve(this.taskRunnerAddress, amountToApprove);
@@ -388,14 +396,14 @@ const app = Vue.createApp({
                 let startTime = Math.floor(Date.now() / 1000); // seconds
 
                 // Estimate gas price
-                let gasEstimate = await this.taskRunner.estimateGas.addTask(
+                let gasEstimate = await window.taskRunner.estimateGas.addTask(
                     modelUrl, datasetUrl, minTime, maxTime, minResults,
                     { from: this.walletAddress }
                 );
 
                 // Call addTask function
                 console.log("Calling addTask function...");
-                let response = await this.taskRunner.addTask(
+                let response = await window.taskRunner.addTask(
                     modelUrl, datasetUrl, minTime, maxTime, minResults,
                     { gasLimit: gasEstimate, from: this.walletAddress }
                 );
@@ -412,59 +420,46 @@ const app = Vue.createApp({
                     throw new Error(`Failed to find ${event} event in transaction receipt`);
                 }
 
-                let listeningResults = false
-                const intervalId = setInterval(()=>{
-                    let taskMessage = this.messages.filter(
-                        message => message.taskIndex == taskIndex
-                    )[0]
-                    if(taskMessage){
-                        if (!listeningResults) {
-                            this.taskRunner.on(
-                                "TaskSubmitted",
-                                (taskIndex, resultUrl, resultsCount, sender) => {
-                                    this.processResultsCount(
-                                        taskIndex,
-                                        resultsCount,
-                                        modelUrl,
-                                        datasetUrl,
-                                        taskMessage,
-                                        intervalId,
-                                    )
-                                    console.log(`Task Submmited, 
-                                        taskIndex=${taskIndex}, \
-                                        resultUrl=${resultUrl}, \
-                                        resultCounts=${resultsCount}, \
-                                        sender=${sender}`
-                                    )
-                                }
-                            );
-                            listeningResults = true
-                        }
-                        if (taskMessage.validated === undefined) {
-                            taskMessage.validated = false
-                        }
-                        taskMessage.minResults = minResults
-                        taskMessage.maxTime = maxTime
-                        taskMessage.minTime = minTime
-                        taskMessage.startTime = startTime
-                        taskMessage.time = Math.floor(Date.now() / 1000) - startTime
-                        if(taskMessage.time >= maxTime){
-                            taskMessage.time = maxTime
-                            clearInterval(intervalId)
-                        }
-                    }
-                }, 200)
-
-                // ORIGIN
-                // const intervalDelay = 200
-                // let intervalId = setInterval(async ()=>{
-                //     let resultsCount = await this.getResultsCount(taskIndex);
-                //     // filter messages to get the message that has this taskIndex
+                // window.taskIndex = taskIndex
+                // window.results = 0
+                // const id = setInterval(() => {
+                //     console.log(`Waitting... count=${window.results}`)
+                //     if (window.results >= 2) {
+                //         clearInterval(id)
+                //     }
+                // }, 1000)
+                    
+                // let listeningResults = false
+                // const intervalId = setInterval(()=>{
                 //     let taskMessage = this.messages.filter(
                 //         message => message.taskIndex == taskIndex
                 //     )[0]
                 //     if(taskMessage){
-                //         taskMessage.resultsCount = resultsCount
+                //         if (!listeningResults) {
+                //             this.taskRunner.on(
+                //                 "TaskSubmitted",
+                //                 (taskIndex, resultUrl, resultsCount, sender) => {
+                //                     this.processResultsCount(
+                //                         taskIndex,
+                //                         resultsCount,
+                //                         modelUrl,
+                //                         datasetUrl,
+                //                         taskMessage,
+                //                         intervalId,
+                //                     )
+                //                     console.log(`Task Submmited, 
+                //                         taskIndex=${taskIndex}, \
+                //                         resultUrl=${resultUrl}, \
+                //                         resultCounts=${resultsCount}, \
+                //                         sender=${sender}`
+                //                     )
+                //                 }
+                //             );
+                //             listeningResults = true
+                //         }
+                //         if (taskMessage.validated === undefined) {
+                //             taskMessage.validated = false
+                //         }
                 //         taskMessage.minResults = minResults
                 //         taskMessage.maxTime = maxTime
                 //         taskMessage.minTime = minTime
@@ -475,22 +470,48 @@ const app = Vue.createApp({
                 //             clearInterval(intervalId)
                 //         }
                 //     }
+                // }, 200)
 
-                //     // Validate task if ready
-                //     let ready = await this.taskRunner.checkIfReadyToValidate(taskIndex);
-                //     console.log("Task ready to validate: ", ready, "Task index: ", taskIndex)
-                //     if(ready){
-                //         console.log("Task ready to validate")
-                //         clearInterval(intervalId)
-                //         let validateResponse = await this.taskRunner.validateTaskIfReady(taskIndex);
-                //         console.log("Waiting for transaction validateTaskIfReady to be mined...");
-                //         let validateReceipt = await validateResponse.wait();  // Wait for transaction to be mined
-                //         console.log("Transaction mined!");
-                //         let responseUrl = await this.taskRunner.getTaskResult(modelUrl, datasetUrl)
-                //         console.log("Response URL: " + responseUrl)
-                //         await this.sendResponse(responseUrl, validateReceipt)
-                //     }
-                // }, intervalDelay)
+                // ORIGIN
+                const intervalDelay = 200
+                window.taskIndex = taskIndex
+
+                listener(window.taskRunner)
+                
+                let intervalId = setInterval(async ()=>{
+                    // filter messages to get the message that has this taskIndex
+                    let taskMessage = this.messages.filter(
+                        message => message.taskIndex == taskIndex
+                    )[0]
+                    if(taskMessage){
+                        taskMessage.resultsCount = window.resultsCount
+                        taskMessage.minResults = minResults
+                        taskMessage.maxTime = maxTime
+                        taskMessage.minTime = minTime
+                        taskMessage.startTime = startTime
+                        taskMessage.time = Math.floor(Date.now() / 1000) - startTime
+                        if(taskMessage.time >= maxTime){
+                            taskMessage.time = maxTime
+                            clearInterval(intervalId)
+                        }
+                    }
+
+                    // Validate task if ready
+                    // let ready = await this.taskRunner.checkIfReadyToValidate(taskIndex);
+                    let ready = window.resultsCount >= minResults
+                    console.log("Task ready to validate: ", ready, "Task index: ", taskIndex)
+                    if(ready){
+                        console.log("Task ready to validate")
+                        clearInterval(intervalId)
+                        let validateResponse = await window.taskRunner.validateTaskIfReady(taskIndex);
+                        console.log("Waiting for transaction validateTaskIfReady to be mined...");
+                        let validateReceipt = await validateResponse.wait();  // Wait for transaction to be mined
+                        console.log("Transaction mined!");
+                        let responseUrl = await window.taskRunner.getTaskResult(modelUrl, datasetUrl)
+                        console.log("Response URL: " + responseUrl)
+                        await this.sendResponse(responseUrl, validateReceipt)
+                    }
+                }, intervalDelay)
                 
 
                 if (receipt.status) {
@@ -500,7 +521,7 @@ const app = Vue.createApp({
                 }
                 return { transaction: receipt, taskIndex: taskIndex, error: false };
             } catch (error) {
-                console.log(error)
+                console.error(error)
                 return { transaction: null, taskIndex: null, error: error };
             }
         },
@@ -514,23 +535,23 @@ const app = Vue.createApp({
         ){
             taskMessage.resultsCount = resultsCount
             // Validate task if ready
-            let ready = await this.taskRunner.checkIfReadyToValidate(taskIndex);
+            let ready = await window.taskRunner.checkIfReadyToValidate(taskIndex);
             console.log("Task ready to validate: ", ready, "Task index: ", taskIndex)
             if(ready && !taskMessage.validated){
                 clearInterval(intervalId)
                 taskMessage.validated = true
                 console.log("Task ready to validate")
-                let validateResponse = await this.taskRunner.validateTaskIfReady(taskIndex);
+                let validateResponse = await window.taskRunner.validateTaskIfReady(taskIndex);
                 console.log("Waiting for transaction validateTaskIfReady to be mined...");
                 let validateReceipt = await validateResponse.wait();  // Wait for transaction to be mined
                 console.log("Transaction mined!");
-                let responseUrl = await this.taskRunner.getTaskResult(modelUrl, datasetUrl)
+                let responseUrl = await window.taskRunner.getTaskResult(modelUrl, datasetUrl)
                 console.log("Response URL: " + responseUrl)
                 await this.sendResponse(responseUrl, validateReceipt)
             }
         },
         async getResultsCount(taskIndex) {
-            let numResults = await this.taskRunner.getAvailableTaskResultsCount(taskIndex);
+            let numResults = await window.taskRunner.getAvailableTaskResultsCount(taskIndex);
             console.log("Number of results for task " + taskIndex + ": " + numResults.toString());
             return numResults;
         },
