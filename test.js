@@ -1,4 +1,6 @@
 window.taskIndex = -1
+window.minResults = 2
+window.resultsCount = 0
 
 function listener(taskRunner) {
     console.log("[test.js] in listener")
@@ -8,24 +10,13 @@ function listener(taskRunner) {
             const child = setInterval(async () => {
                 window.resultsCount = await taskRunner.getAvailableTaskResultsCount(window.taskIndex);
                 console.log(`[test.js] count=${window.resultsCount}`)
-                if (window.resultsCount >= 2) {
+                if (window.resultsCount >= window.minResults) {
                     clearInterval(child)
+                    window.resultsCount = 0
                 }
             }, 1000)
         }
     }, 1000);
-}
-
-async function getContracts(
-    tokenABI, tokenAddress, taskRunnerABI, taskRunnerAddress, signer
-) {
-    window.token = new ethers.Contract(
-        tokenAddress, tokenABI, signer
-    );
-    window.taskRunner = new ethers.Contract(
-        taskRunnerAddress, taskRunnerABI, signer
-    );
-    console.log(">>>>", window.taskRunner)
 }
 
 async function test() {
@@ -50,4 +41,5 @@ async function test() {
     // await new Promise(resolve => setTimeout(resolve, 2000));
     return listener(taskRunner)
 }
-// test()
+
+test()

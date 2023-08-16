@@ -286,11 +286,7 @@ const app = Vue.createApp({
             this.taskRunner = Vue.markRaw(new ethers.Contract(
                 this.taskRunnerAddress, this.taskRunnerABI, signer
             ));
-            await getContracts(
-                this.tokenABI, this.tokenAddress,
-                this.taskRunnerABI, this.taskRunnerAddress, signer
-            );
-            console.log("taskRunner", window.taskRunner)
+            console.log("taskRunner", this.taskRunner)
         },
         getProvider(){
             // TODO: switch network when it's selected
@@ -380,14 +376,14 @@ const app = Vue.createApp({
         async runTask(modelUrl, datasetUrl) {
             try{
                 console.log("Token contract address:", this.token.address);
-                console.log("Task runner contract address:", window.taskRunner.address);
+                console.log("Task runner contract address:", this.taskRunner.address);
 
                 const amountToApprove = ethers.utils.parseUnits('100.0', 18);  // Allow the spender to transfer 10 tokens
                 const tx = await this.token.approve(this.taskRunnerAddress, amountToApprove);
+                console.log("approve tx", tx)
                 console.log("Waiting for transaction approve to be mined...", tx);
                 await tx.wait();
                 console.log("Approved tokens for task runner contract");
-                
                 
                 // Define parameters for addTask function
                 let minTime = 0; // seconds
@@ -396,23 +392,26 @@ const app = Vue.createApp({
                 let startTime = Math.floor(Date.now() / 1000); // seconds
 
                 // Estimate gas price
-                let gasEstimate = await window.taskRunner.estimateGas.addTask(
+                let gasEstimate = await this.taskRunner.estimateGas.addTask(
                     modelUrl, datasetUrl, minTime, maxTime, minResults,
                     { from: this.walletAddress }
                 );
 
                 // Call addTask function
                 console.log("Calling addTask function...");
-                let response = await window.taskRunner.addTask(
+                let response = await this.taskRunner.addTask(
                     modelUrl, datasetUrl, minTime, maxTime, minResults,
                     { gasLimit: gasEstimate, from: this.walletAddress }
                 );
+
+                console.log("resp", response)
                 console.log("addTask function called");
                 console.log("running test")
 
                 // Wait for transaction to be mined
                 console.log("Waiting for transaction addTask to be mined...");
                 let receipt = await response.wait();
+                console.warn(receipt)
                 console.log("Transaction mined!");
                 let taskAddedEvent = receipt.events.find(event => event.address.toLowerCase() === this.taskRunnerAddress.toLowerCase());
                 let taskIndex = taskAddedEvent.args.taskIndex
@@ -475,9 +474,10 @@ const app = Vue.createApp({
                 // ORIGIN
                 const intervalDelay = 200
                 window.taskIndex = taskIndex
+                window.resultsCount = 0
+                window.minResults = minResults
+                console.log("taskIndex", window.taskIndex)
 
-                listener(window.taskRunner)
-                
                 let intervalId = setInterval(async ()=>{
                     // filter messages to get the message that has this taskIndex
                     let taskMessage = this.messages.filter(
@@ -500,16 +500,18 @@ const app = Vue.createApp({
                     // let ready = await this.taskRunner.checkIfReadyToValidate(taskIndex);
                     let ready = window.resultsCount >= minResults
                     console.log("Task ready to validate: ", ready, "Task index: ", taskIndex)
+                    console.log(">>>>", window.resultsCount)
                     if(ready){
-                        console.log("Task ready to validate")
                         clearInterval(intervalId)
-                        let validateResponse = await window.taskRunner.validateTaskIfReady(taskIndex);
+                        console.log("Task ready to validate")
+                        let validateResponse = await this.taskRunner.validateTaskIfReady(taskIndex);
                         console.log("Waiting for transaction validateTaskIfReady to be mined...");
                         let validateReceipt = await validateResponse.wait();  // Wait for transaction to be mined
                         console.log("Transaction mined!");
-                        let responseUrl = await window.taskRunner.getTaskResult(modelUrl, datasetUrl)
+                        let responseUrl = await this.taskRunner.getTaskResult(modelUrl, datasetUrl)
                         console.log("Response URL: " + responseUrl)
                         await this.sendResponse(responseUrl, validateReceipt)
+                        window.resultsCount = 0
                     }
                 }, intervalDelay)
                 
@@ -535,23 +537,23 @@ const app = Vue.createApp({
         ){
             taskMessage.resultsCount = resultsCount
             // Validate task if ready
-            let ready = await window.taskRunner.checkIfReadyToValidate(taskIndex);
+            let ready = await this.taskRunner.checkIfReadyToValidate(taskIndex);
             console.log("Task ready to validate: ", ready, "Task index: ", taskIndex)
             if(ready && !taskMessage.validated){
                 clearInterval(intervalId)
                 taskMessage.validated = true
                 console.log("Task ready to validate")
-                let validateResponse = await window.taskRunner.validateTaskIfReady(taskIndex);
+                let validateResponse = await this.taskRunner.validateTaskIfReady(taskIndex);
                 console.log("Waiting for transaction validateTaskIfReady to be mined...");
                 let validateReceipt = await validateResponse.wait();  // Wait for transaction to be mined
                 console.log("Transaction mined!");
-                let responseUrl = await window.taskRunner.getTaskResult(modelUrl, datasetUrl)
+                let responseUrl = await this.taskRunner.getTaskResult(modelUrl, datasetUrl)
                 console.log("Response URL: " + responseUrl)
                 await this.sendResponse(responseUrl, validateReceipt)
             }
         },
         async getResultsCount(taskIndex) {
-            let numResults = await window.taskRunner.getAvailableTaskResultsCount(taskIndex);
+            let numResults = await this.taskRunner.getAvailableTaskResultsCount(taskIndex);
             console.log("Number of results for task " + taskIndex + ": " + numResults.toString());
             return numResults;
         },
