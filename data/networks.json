@@ -17,6 +17,14 @@
         "token_address": "0x4Dd5F358D39A9DFfaC8F1905FcC238A04BC1f332",
         "task_runner_address": "0xDAE95F004b4B308921c8fdead101555eAB83916B"
     },
+    "testnet/goerli": {
+        "rpc_urls": [
+            "https://goerli.infura.io/v3/55c5715ea59149e799b91e8c06463e1c"
+        ],
+        "explorer": "https://goerli.etherscan.io/",
+        "token_address": "0x909C19a72827d0Afbfd0B906720e6F4C302DafdD",
+        "task_runner_address": "0x315e6a2ADF450B50C95F64B5DF0b4A6b7908E7e9"
+    },
     "testnet/scroll": {
         "rpc_urls": [
             "https://alpha-rpc.scroll.io/l2"
@@ -30,8 +38,8 @@
             "https://goerli-rollup.arbitrum.io/rpc"
         ],
         "explorer": "https://goerli.arbiscan.io",
-        "token_address": "0xc365bc6d5ADd80998FFa68d0Da4925A54C43D0F6",
-        "task_runner_address": "0x2aCe1d7797987a23CF35b0695154b5FEBeA42F85"
+        "token_address": "0xdDe55Bbf8bB6b13C11De0AfDb8214f245dB48d4a",
+        "task_runner_address": "0x9F6a708dE9cEBe7df6a7d0Fb63235fd91D0b36B0"
     },
     "testnet/polygon/zkevm": {
         "rpc_urls": [
@@ -98,5 +106,13 @@
         "explorer": "https://goerli.lineascan.build/",
         "token_address": "0x70bb5CB76257579A8895a012Da0afA992eAf8c16",
         "task_runner_address": "0xc74f072eE7736EfFD418A1C98cF1bc534477F86A"
+    },
+    "mainnet/polygon/zkevm": {
+        "rpc_urls": [
+            "https://zkevm-rpc.com"
+        ],
+        "explorer": "https://zkevm.polygonscan.com",
+        "token_address": "0xcdcB42FeE1F1C778c48bcD199590D676c7c46b9d",
+        "task_runner_address": "0xC2B7682A400A618fA23f4D3E6EBa677286C8bc26"
     }
 }

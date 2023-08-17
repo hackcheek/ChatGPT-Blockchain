@@ -64,7 +64,13 @@ const app = Vue.createApp({
             gptUrl: 'https://ipfs.io/ipfs/QmVvj4LzCwR8NZuDbUf1qxpnA6QcGr2FJVJnGiZ9ExWoBT',
             alpacaBaseUrl: 'https://ipfs.io/ipfs/QmQMJpMh6p5tAunMdh3jHHBhHbwLLgbPfdVi2cDBk6NQpQ',
             alpacaLargeUrl: 'https://ipfs.io/ipfs/QmWSHzSH18as5tPyXou9gKZ7X2FCNDaQyGfS87rT1gqz5D',
+
+            // Base
             modelUrl: 'https://ipfs.io/ipfs/QmaCB8TzHQLHFg8UGques8bdQ7tX9ZmvfpJWSnYriyGPfS',
+
+            // Alpaca FlatT5
+            // modelUrl: 'https://ipfs.io/ipfs/QmPtWj1rA4BdF2H394Ec8RETb19QYcLdYnVeSf94hpxMVU',
+
             walletAddress: null,
             walletAccounts: [],
             walletDropdown: false,
@@ -80,13 +86,23 @@ const app = Vue.createApp({
             taskRunner: null,
             network: 'devnet/anvil',
             networks: null,
-            whitelistedNetworks: ["devnet/anvil", "testnet/gnosis", "testnet/polygon/zkevm", "testnet/neon", "testnet/mantle", "testnet/linea"],
+            whitelistedNetworks: [
+                "devnet/anvil",
+                "testnet/goerli",
+                "testnet/arbitrum",
+                "testnet/gnosis",
+                "testnet/polygon/zkevm",
+                "testnet/neon",
+                "testnet/mantle",
+                "testnet/linea",
+            ],
             waitingForResponse: false,
         }
     },
     computed: {
         whitelistedNetworks() {
-          return Object.keys(this.networks).filter(network => this.whitelistedNetworks.includes(network));
+          return Object.keys(this.networks)
+                .filter(network => this.whitelistedNetworks.includes(network));
         }
     },
     async created(){
@@ -123,7 +139,7 @@ const app = Vue.createApp({
             }
         },
         explorerUrl(tx_hash) {
-            return this.networks[this.network].explorer + "/" + tx_hash
+            return this.networks[this.network].explorer + "tx/" + tx_hash
         },
         nextResponse(message){
             // returns the next message if it is a bot response
@@ -274,6 +290,8 @@ const app = Vue.createApp({
             const provider = this.getProvider();
             const signer = await provider.getSigner();
             const address = await signer.getAddress();
+
+            console.log("provider", provider.connection)
 
             console.log("signer", signer)
             window.signer = signer
@@ -480,6 +498,7 @@ const app = Vue.createApp({
 
                 let intervalId = setInterval(async ()=>{
                     // filter messages to get the message that has this taskIndex
+                    console.log(`[script.js] count=${window.resultsCount}`)
                     let taskMessage = this.messages.filter(
                         message => message.taskIndex == taskIndex
                     )[0]
